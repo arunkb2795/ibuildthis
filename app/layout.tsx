@@ -219,7 +219,6 @@ export default function RootLayout({
         >
           <Header />
           <RegisterSW />
-          <IOSInstallPrompt />
           {children}
           {/* <footer>IBuildThis in 2026</footer> */}
         </body>

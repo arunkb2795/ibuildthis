@@ -1,32 +1,114 @@
 "use client";
 
-export default function IOSInstallPrompt() {
-  if (typeof window === "undefined") return null;
-  const ua = window.navigator.userAgent;
-  const isIOS = /iPhone|iPad|iPod/.test(ua);
-  const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
-  const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+import { useEffect, useState } from "react";
 
-  if (isIOS && isSafari && !isStandalone) return null;
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
 
-  return (
-    <div
-      style={{
-        position: "fixed",
-        bottom: 16,
-        left: 16,
-        right: 16,
-        padding: 16,
-        borderRadius: 12,
-        background: "#111",
-        color: "#fff",
-        zIndex: 1000,
-      }}
-    >
-      <strong>Install App</strong>
-      <p style={{ marginTop: 8 }}>
-        In Safari, tap the Share button and choose Add to Home Screen.
-      </p>
-    </div>
-  );
+export default function PWAInstall() {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+
+  const [installed, setInstalled] = useState(false);
+
+  const isIOS =
+    typeof window !== "undefined" &&
+    /iphone|ipad|ipod/i.test(
+      window.navigator.userAgent
+    );
+
+  // derive initial installed state directly
+  const isStandalone =
+    typeof window !== "undefined" &&
+    (
+      window.matchMedia("(display-mode: standalone)")
+        .matches ||
+      // @ts-ignore
+      window.navigator.standalone === true
+    );
+
+  const isInstalled = installed || isStandalone;
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+
+      setDeferredPrompt(
+        e as BeforeInstallPromptEvent
+      );
+    };
+
+    const onInstalled = () => {
+      setInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      handler
+    );
+
+    window.addEventListener(
+      "appinstalled",
+      onInstalled
+    );
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handler
+      );
+
+      window.removeEventListener(
+        "appinstalled",
+        onInstalled
+      );
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+
+    await deferredPrompt.prompt();
+
+    const result =
+      await deferredPrompt.userChoice;
+
+    if (result.outcome === "accepted") {
+      setDeferredPrompt(null);
+    }
+  };
+
+  if (isInstalled) return null;
+
+  if (isIOS) {
+    return (
+      <div className="rounded-xl border p-4">
+        <p className="font-semibold mb-2">
+          Install on iPhone
+        </p>
+
+        <ol className="list-decimal ml-5 text-sm space-y-1">
+          <li>Tap Share in Safari</li>
+          <li>Tap “Add to Home Screen”</li>
+          <li>Tap “Add”</li>
+        </ol>
+      </div>
+    );
+  }
+
+  if (deferredPrompt) {
+    return (
+      <button
+        onClick={handleInstall}
+        className="px-4 py-2 rounded-lg bg-black text-white"
+      >
+        Install App
+      </button>
+    );
+  }
+
+  return null;
 }
