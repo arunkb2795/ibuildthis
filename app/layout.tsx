@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Viewport } from "next";
 import RegisterSW from "@/components/register-sw";
 import IOSInstallPrompt from "@/components/ios-install";
+import { RefreshOnFocus } from "@/components/refesh-on-focus";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -221,6 +222,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <Header />
+          <RefreshOnFocus />
           <RegisterSW />
           {children}
           {/* <footer>IBuildThis in 2026</footer> */}
