@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Viewport } from "next";
+import RegisterSW from "@/components/register-sw";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -216,6 +217,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <Header />
+          <RegisterSW />
           {children}
           {/* <footer>IBuildThis in 2026</footer> */}
         </body>
