@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Viewport } from "next";
 import RegisterSW from "@/components/register-sw";
+import IOSInstallPrompt from "@/components/ios-install";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -218,6 +219,7 @@ export default function RootLayout({
         >
           <Header />
           <RegisterSW />
+          <IOSInstallPrompt />
           {children}
           {/* <footer>IBuildThis in 2026</footer> */}
         </body>
